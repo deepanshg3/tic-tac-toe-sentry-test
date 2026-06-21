@@ -1,1 +1,1 @@
-def greet() print("Hello Optic")
+print("Hello Optic
