@@ -15,13 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Download your Tic-Tac-Toe game code
       - name: Checkout Tic-Tac-Toe Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Step 2: Run the Super Linter and force it to save a JSON report
       - name: Lint Code Base
         uses: github/super-linter@v5.0.0
         env:
@@ -31,11 +29,13 @@ jobs:
           OUTPUT_FORMAT: json
           OUTPUT_FOLDER: ./
 
-      # Step 3: Trigger Optic AI Healer on Failure
       - name: Trigger Optic AI Healer on Failure
         if: failure()
         env:
-          GEMINI_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          # 🚨 FIXED: Both sides now match perfectly for Langchain!
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          # 🚨 ADDED: Your model name secret is now injected into the cloud!
+          GEMINI_MODEL_NAME: ${{ secrets.GEMINI_MODEL_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🤖 Super Linter failed! Cloning the Optic Cloud Brain..."
