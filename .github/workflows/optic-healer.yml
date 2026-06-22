@@ -42,7 +42,7 @@ jobs:
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/deepanshg3/optic.git optic_brain
           
           echo "📦 Installing Optic requirements..."
-          pip install google-generativeai python-dotenv
+          pip install -r optic_brain/requirements.txt
           
           echo "🔍 Locating Orchestrator dynamically..."
           ORCHESTRATOR_PATH=$(find optic_brain -name "orchestrator.py" | head -n 1)
@@ -54,6 +54,5 @@ jobs:
           fi
           
           echo "🧠 Executing Optic Orchestrator at: $ORCHESTRATOR_PATH"
-          # Added the quotes demanded by actionlint to prevent word splitting!
           cd "$(dirname "$ORCHESTRATOR_PATH")"
           python orchestrator.py
