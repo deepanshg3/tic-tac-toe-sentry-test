@@ -26,15 +26,14 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OUTPUT_FORMAT: json
-          OUTPUT_FOLDER: ./
+          # 🚨 FIXED: Generate a text log instead of JSON
+          CREATE_LOG_FILE: true
+          LOG_FILE: super-linter.log
 
       - name: Trigger Optic AI Healer on Failure
         if: failure()
         env:
-          # 🚨 FIXED: Both sides now match perfectly for Langchain!
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          # 🚨 ADDED: Your model name secret is now injected into the cloud!
           GEMINI_MODEL_NAME: ${{ secrets.GEMINI_MODEL_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
