@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the dev server directly so it logs runtime errors to the container terminal
-CMD ["npm", "run", "start-game-server"]
+CMD ["npm", "start"]
