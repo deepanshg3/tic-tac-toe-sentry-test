@@ -1,0 +1,95 @@
+name: 🐳 Hybrid Docker Test & Auto-Healer
+
+on:
+  workflow_dispatch: # Trigger 1: The Manual "Run Workflow" Button
+  push:
+    branches: [ "main" ] # Trigger 2: The Merge 
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  docker-test-drive:
+    name: Build & Test Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # === THE VIP BOUNCER ===
+      - name: Evaluate Trigger (The Bouncer)
+        id: bouncer
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "✅ Manual trigger detected. Proceeding with Docker test."
+            echo "run_docker=true" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            # Grab the commit message of the merge
+            COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+            echo "Commit message: $COMMIT_MSG"
+            
+            # Check for the secret breadcrumb
+            if [[ "$COMMIT_MSG" == *"optic-docker-fix"* ]]; then
+              echo "✅ Optic Docker Fix merge detected. Resuming pipeline!"
+              echo "run_docker=true" >> $GITHUB_OUTPUT
+            else
+              echo "⏭️ Normal push or Linter fix detected. Skipping Docker build to save minutes."
+              echo "run_docker=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      # === STEP 1: BUILD === (Only runs if the Bouncer says 'true')
+      - name: Build Docker Image
+        if: steps.bouncer.outputs.run_docker == 'true'
+        run: |
+          echo "🐳 Building Docker Image..."
+          docker build -t tic-tac-toe-app .
+
+      # === STEP 2: RUN & TEST === (Only runs if the Bouncer says 'true')
+      - name: Run Docker Container (10-Second Survival Test)
+        if: steps.bouncer.outputs.run_docker == 'true'
+        run: |
+          echo "🚀 Starting the container in the background..."
+          docker run -d --name my-app tic-tac-toe-app
+          
+          echo "⏳ Waiting 10 seconds to see if it crashes..."
+          sleep 10
+          
+          # Check the heartbeat of the container
+          if [ "$(docker inspect -f '{{.State.Running}}' my-app)" != "true" ]; then
+            echo "❌ CRASH DETECTED: Container died within 10 seconds!"
+            exit 1
+          else
+            echo "✅ SUCCESS: Container is stable!"
+            docker stop my-app
+          fi
+
+      # === STEP 3: OPTIC HEALER === (Only runs if Step 2 crashes)
+      - name: Trigger Optic AI Healer
+        if: failure() && steps.bouncer.outputs.run_docker == 'true'
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GEMINI_MODEL_NAME: ${{ secrets.GEMINI_MODEL_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🤖 Docker crashed! Fetching the container logs..."
+          # Notice we save this as docker-crash.log, not super-linter.log!
+          docker logs my-app > docker-crash.log 2>&1
+          
+          echo "📋 Docker Crash Logs Captured:"
+          cat docker-crash.log
+          
+          echo "🤖 Cloning the Optic Cloud Brain..."
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/deepanshg3/optic.git optic_brain
+          
+          echo "📦 Installing Optic requirements..."
+          pip install -r optic_brain/requirements.txt
+          
+          echo "🧠 Executing Optic Orchestrator..."
+          ORCHESTRATOR_PATH=$(find optic_brain -name "orchestrator.py" | head -n 1)
+          cd "$(dirname "$ORCHESTRATOR_PATH")"
+          python orchestrator.py
