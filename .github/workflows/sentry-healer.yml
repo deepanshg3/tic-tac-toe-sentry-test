@@ -15,11 +15,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Save Sentry Alert Payload
+      - name: Generate AI Actionable Log
         run: |
-          echo "Sentry Alert Caught Natively!"
-          echo '${{ toJson(github.event.client_payload) }}' > sentry-crash.json
-          cat sentry-crash.json
+          echo "🚨 Sentry Alert Caught via Pipedream Bridge!"
+          
+          # We extract the exact error message from the Pipedream envelope 
+          # and write it to the specific file our Python AI expects.
+          echo "${{ github.event.client_payload.error_message }}" > sentry-alert.log
+          
+          echo "Log generated successfully. Contents:"
+          cat sentry-alert.log
 
       - name: Execute Optic Brain
         env:
@@ -27,6 +32,11 @@ jobs:
           GEMINI_MODEL_NAME: ${{ secrets.GEMINI_MODEL_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "🤖 Cloning Optic Brain..."
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/deepanshg3/optic.git optic_brain
+          
+          echo "📦 Installing Requirements..."
           pip install -r optic_brain/requirements.txt
+          
+          echo "🧠 Executing Orchestrator..."
           python optic_brain/backend/super_linter/orchestrator.py
