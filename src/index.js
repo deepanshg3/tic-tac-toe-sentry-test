@@ -6,6 +6,22 @@ import calculateWinner from './helpers/calculateWinner'
 import Board from './components/board/Board'
 import GameInfo from './components/game-info/GameInfo'
 
+// ==========================================
+// 🚨 STEP 1 & 2: IMPORT & INITIALIZE SENTRY
+// ==========================================
+import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: "https://51adef9a5d3ce2f79c389e21551851eb@o4511620117561344.ingest.de.sentry.io/4511620147576912", // 👈 Bro, paste your real Sentry DSN key here!
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: 1.0, 
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
+
 class Game extends React.Component {
   constructor(props) {
     super(props)
@@ -47,6 +63,13 @@ class Game extends React.Component {
     })
   }
 
+  // Helper function to force an unhandled runtime error
+  triggerSabotageCrash() {
+    console.log("💣 Sabotage button clicked! Exploding application...");
+    // Calling a function that completely does not exist forces a fatal ReferenceError
+    this.executeNonExistentFunction(); 
+  }
+
   render() {
     const history = this.state.history
     const current = history[this.state.stepNumber]
@@ -59,6 +82,18 @@ class Game extends React.Component {
     }
     return (
       <React.Fragment>
+        {/* ==========================================
+            🚨 STEP 3: THE INTENTIONAL SABOTAGE BUTTON
+           ========================================== */}
+        <div style={{ textAlign: 'center', margin: '20px' }}>
+          <button 
+            onClick={() => this.triggerSabotageCrash()}
+            style={{ padding: '10px 20px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            💥 Trigger Live Production Crash
+          </button>
+        </div>
+
         <h1>Tic Tac Toe</h1>
         <section className="game">
           <GameInfo

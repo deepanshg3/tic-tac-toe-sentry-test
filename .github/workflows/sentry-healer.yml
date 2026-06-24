@@ -1,0 +1,32 @@
+name: 🚨 Sentry Production Auto-Healer
+
+on:
+  repository_dispatch:
+    types: [sentry-alert] # This is the exact keyword Sentry will shout
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-heal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Save Sentry Alert Payload
+        run: |
+          echo "Sentry Alert Caught Natively!"
+          echo '${{ toJson(github.event.client_payload) }}' > sentry-crash.json
+          cat sentry-crash.json
+
+      - name: Execute Optic Brain
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GEMINI_MODEL_NAME: ${{ secrets.GEMINI_MODEL_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/deepanshg3/optic.git optic_brain
+          pip install -r optic_brain/requirements.txt
+          python optic_brain/backend/super_linter/orchestrator.py
