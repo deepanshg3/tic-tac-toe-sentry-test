@@ -17,7 +17,7 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration()
   ],
-// ... rest of the code
+  // ... rest of the code
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0
@@ -48,7 +48,7 @@ class Game extends React.Component {
     this.setState({
       history: history.concat([
         {
-          squares: squares
+          squares
         }
       ]),
       stepNumber: history.length,
@@ -116,5 +116,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(<Router basename={process.env.REACT_APP_URI}>
   <Routes>
     <Route path='/tic-tac-toe' element={<Game />} />
+  </Routes>
   </Routes>
 </Router>)
