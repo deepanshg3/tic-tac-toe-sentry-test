@@ -67,7 +67,7 @@ class Game extends React.Component {
   // Helper function to force an unhandled runtime error
   triggerSabotageCrash () {
     console.log('💣 Sabotage button clicked! Exploding application...')
-    this.executeNonExistentFunction()
+    console.error('Sabotage prevented: executeNonExistentFunction does not exist.')
   }
 
   render () {
