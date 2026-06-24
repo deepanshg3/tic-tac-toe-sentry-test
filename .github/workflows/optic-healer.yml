@@ -1,4 +1,4 @@
-name: 🚨 Optic Auto-Healer Pipeline
+name: 🚨 Optic Linter Auto-Healer Pipeline
 
 on:
   push:

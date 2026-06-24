@@ -12,11 +12,12 @@ import GameInfo from './components/game-info/GameInfo'
 import * as Sentry from '@sentry/react'
 
 Sentry.init({
-  dsn: 'https://51adef9a5d3ce2f79c389e21551851eb@o4511620117561344.ingest.de.sentry.io/4511620147576912',
+  dsn: process.env.REACT_APP_SENTRY_DSN,
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration()
   ],
+// ... rest of the code
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0
@@ -47,8 +48,7 @@ class Game extends React.Component {
     this.setState({
       history: history.concat([
         {
-        {
-          squares
+          squares: squares
         }
       ]),
       stepNumber: history.length,
@@ -107,7 +107,7 @@ class Game extends React.Component {
             jumpTo={(i) => this.jumpTo(i)}
           />
         </section>
-      </React.Fragment>
+      </>
     )
   }
 }
